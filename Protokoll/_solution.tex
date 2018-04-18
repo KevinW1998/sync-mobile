@@ -153,6 +153,8 @@ Der Client besteht aus der index.html und der Javascript-Datei index.js welches 
 
 \subsubsection{Funktionsweise}
 
+Die Web-Applikation besteht aus mehrere Funktionalitäten. Dies Umfasst die CRUD-Operationen für die Applikation.
+
 \paragraph{DOM-Modifikation}
 Nach jeder Veränderung des data-Objekts wird das ganze DOM-Model neu gebildet. Dies bedeutet, dass alle DOM-Elemente gelöscht und neu hinzugefügt werden. Damit wird garantiert, dass das DOM-Model auch die Daten im data-Objekt repräsentiert. Außerdem wird ein sync-Befehl ausgeführt. Damit erhalten alle anderen verbundenen Clients die Daten und deren View wird auch aktualisiert.
 
@@ -161,6 +163,10 @@ Wenn nun neue Daten hinzugefügt werden, dann wird das \codein{js}{data}-Objekt 
 
 \paragraph{Löschen von Daten}
 Ein Datensatz kann mithilfe des ``Löschen''-Buttons gelöscht werden. Der jeweilige Datensatz wird mithilfe der Position in der Liste identifiziert.
+
+\paragraph{Aktualisieren von Daten}
+Datensätze können aktualisiert werden, in dem man auf den ``Editieren''-Button klickt. Der Datensatz wird dann gelöscht, und die Daten werden in den Editierungsboxen kopiert. Danach können die Daten wieder hinzugefügt werden. 
+
 
 \subsection{Ausführung}
 

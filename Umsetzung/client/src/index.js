@@ -4,7 +4,9 @@ console.log('starting sync service!');
 // Diffsync init code
 let DiffSyncClient = require('diffsync').Client;
 let socket = require('socket.io-client');
-let client = new DiffSyncClient(socket('ws://127.0.0.1:3000'), 'form-data');
+let socketInstance = socket(`ws://${window.location.hostname}:3000`);
+let client = new DiffSyncClient(socketInstance, 'form-data');
+// __global_client = client
 
 // Diffsync main data point
 let data = {};
@@ -68,15 +70,42 @@ function updateViewFromData() {
                 deleteButton.className = 'btn';
                 deleteButton.innerHTML = 'Löschen';
                 deleteButton.addEventListener('click', () => {
-                    // TODO: Add delete code
                     console.log("Index: " + getElementIndex(newViewDataLine));
                     data['data-lines'].splice(getElementIndex(newViewDataLine), 1);
-                    client.sync();
+                    if(isConnected) {
+                        client.sync();
+                    }
+                    updateViewFromData();
+                });
+                deleteTd.appendChild(deleteButton);
+
+                let editButton = document.createElement('button');
+                editButton.type = 'button';
+                editButton.className = 'btn all-margin';
+                editButton.innerHTML = 'Editieren';
+                editButton.addEventListener('click', () => {
+                    let tdElements = newViewDataLine.getElementsByTagName('td');
+
+                    let inputElements = inputLine.getElementsByTagName('input');
+                    inputElements[0].value = tdElements[0].innerHTML;
+                    inputElements[1].value = tdElements[1].innerHTML;
+                    inputElements[2].value = tdElements[2].innerHTML;
+
+                    console.log(tdElements);
+                    console.log(inputElements);
+
+                    data['data-lines'].splice(getElementIndex(newViewDataLine), 1);
+                    if(isConnected) {
+                        client.sync();
+                    }
                     updateViewFromData();
                 });
 
-                deleteTd.appendChild(deleteButton);
+                deleteTd.appendChild(editButton);
                 newViewDataLine.appendChild(deleteTd);
+
+
+
 
                 dataTable.insertBefore(newViewDataLine, inputLine);
             }
@@ -92,7 +121,7 @@ function updateViewFromData() {
     } else {
         connectionStatus.innerHTML = 'Nicht Verbunden';
         connectionStatus.style.color = 'red';
-        document.getElementById('button-add').disabled = false;
+        document.getElementById('button-add').disabled = true;
     }
 }
 
@@ -126,7 +155,9 @@ function addTableLineFromInput() {
     data['data-lines'].push(newDataObj);
 
     // Execute sync
-    client.sync();
+    if(isConnected) {
+        client.sync();
+    }
 
     return true;
 }
@@ -153,6 +184,21 @@ client.on('synced', function(){
 
     updateViewFromData();
 
+});
+
+socketInstance.on('disconnect', () => {
+    isConnected = false;
+
+    updateViewFromData();
+});
+
+socketInstance.on('reconnect', () => {
+    isConnected = true;
+    if(isConnected) {
+        client.sync();
+    }
+
+    updateViewFromData();
 });
 
 window.addEventListener('load', () => {
